@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1> booking appointment app</h1>
+    <form>
+        <lable for="username">NAME: </lable>
+        <input type="text" id="username" name="username" required>
+        <lable for="email">EMAIL</lable>
+        <input type="email" id="email" name="email" required>
+        <label for="number">MOBILE NUMBER </label>
+        <input type="tel" id="number" name="number" required>
+        <button type="submit">SUBMIT</button>
+
+        
+    </form>
+    <ul id="list"></ul>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        
+        window.addEventListener('DOMContentLoaded', function () {
+            list.innerHTML=""
+            fetchDetails()
+
+        
+        });
+        //console.log('hiii')
+        const list=document.getElementById('list')
+        document.querySelector('form').onsubmit=function(event){
+            event.preventDefault()
+            console.log('hiii')
+            myobj={
+                username:event.target.username.value,
+                email:event.target.email.value,
+                number:event.target.number.value
+            }
+            axios.post('http://localhost:8000/userDetails',myobj).then(res=>{
+                //console.log(res)
+                fetchDetails()
+            }).catch(err=>console.log(err))
+        }
+        function fetchDetails(){
+            list.innerHTML=""
+            axios.get('http://localhost:8000/userDetails').then(res=>{
+                console.log(res.data)
+                
+                for(let i=0;i<res.data.length;i++){
+                   // console.log(res.data[0][i])
+                    console.log(res.data[i])
+                    showuserDetails(res.data[i])
+                }
+            }).catch(err=>console.log(err))
+            
+            
+
+        }
+        function showuserDetails(myObj){
+            //console.log('hii in show function ')
+            console.log(myObj)
+            const para=document.createElement('li')
+            para.textContent=`${myObj.name}---${myObj.email}--${myObj.phone}`
+            const dltbtn=document.createElement('button');
+            dltbtn.textContent="DELETE";
+            const editbtn=document.createElement('button'); 
+            editbtn.textContent="EDIT" 
+            para.appendChild(dltbtn);
+            para.appendChild(editbtn);
+            list.appendChild(para);
+            dltbtn.addEventListener('click',()=>{
+                console.log('delete')
+                delteUserDetails(myObj.id)
+            })
+            editbtn.addEventListener('click',()=>{
+                edit(myObj)
+            })
+        }
+        function delteUserDetails(id){
+            axios.delete(`http://localhost:8000/deleteUserDetails/${id}`).then((res)=>{
+                //window.location.reload();
+                fetchDetails()
+            }).catch(err=>{
+                console.log(err)
+            })
+        }
+        function edit(myObj){
+            document.getElementById('username').value=myObj.name;
+            document.getElementById('email').value=myObj.email;
+            document.getElementById('number').value=myObj.phone;
+            delteUserDetails(myObj.id)
+        }
+
+            
+    </script>
+</body>
+</html>

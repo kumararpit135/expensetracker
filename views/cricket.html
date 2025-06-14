@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+    <h2 style="text-align: center;">player information</h2>
+    <form style="text-align: center">
+        <label for="name">NAME</label>
+        <input type="text" id="name" name="name" value="ak">
+        <br>
+
+        <label for="age">AGE</label>
+        <input type="number" id="age" name="age" value="25">
+        <br>
+        <label for="url">PHOTO URL</label>
+        <input type="url" id="url" name="url" value="http://localhost:8000/userDetails">
+        <br>
+        <label for="bio">BIO data</label>
+        <textarea rows="5" cols="10" id="bio" value="fdnakjdsfhajskfh"></textarea>
+
+        <label for="birthplace">BIRTH-PLACE</label>
+        <input type="text" id="birthplace" name="birthplace" value="India">
+        <br>
+
+        <label for="matches">NUMBER OF MATCHES </label>
+        <input type="text" id="matches" name="matches" value="50"><br>
+
+        <label for="score">TOTAL SCORE</label>
+        <input type="number" id="score" name="score" value="56"><br>
+
+        <label for="fifties">TOTAL FIFTIES</label>
+        <input type="number" id="fifties" name="fifties" value="96"><br>
+
+        <label for="centuries">TOTAL CENTURIES </label>
+        <input type="text" id="centuries" name="centuries" value="86"><br>
+
+        <label for="wicket">TOTAL WICKET</label>
+        <input type="text" id="wicket" name="wicket" value="19"><br>
+
+        <label for="average">AVERAGE RUN </label>
+        <input type="text" id="average" name="average" value="10"><br>
+
+        <button type="submit"> SUBMIT</button>
+
+
+    </form>
+    
+    <lable for="search"></lable>
+    <input type="txt" id="search" name="search">
+    <button type="button" onclick="searchFun(event)">click</button>
+    <ul id="showhere"></ul>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        fetchDeatils()
+        const show=document.getElementById('showhere');
+        function searchFun(event){
+            show.innerHTML=""
+            const filter=document.getElementById('search').value;
+            
+            axios.post('http://localhost:8000/search',{filter:filter})
+                .then(res=>display(res.data[0]))
+                .catch(err=>console.log(err));
+        }
+        
+            
+        
+
+        console.log('hiii')
+        
+        document.querySelector('form').onsubmit=function(event){
+            event.preventDefault();
+            let myobj={
+                name:event.target.name.value,
+                age:event.target.age.value,
+                url:event.target.url.value,
+                bio:event.target.bio.value,
+                birthplace:event.target.birthplace.value,
+                matches:event.target.matches.value,
+                score:event.target.score.value,
+                fifties:event.target.fifties.value,
+                centuries:event.target.centuries.value,
+                wicket:event.target.wicket.value,
+                average:event.target.average.value
+
+
+            }
+            axios.post('http://localhost:8000/add',myobj).then((res)=>{
+                fetchDeatils()
+                console.log('hiii')
+            }).catch(err=>console.log(err))
+        }
+        function fetchDeatils(){
+            axios.get('http://localhost:8000/info').then(res=>{
+                console.log('in get ')
+                show.innerHTML=""
+                //console.log(res.data)
+                for (let i=0;i<res.data.length;i++){
+                    display(res.data[i])
+                }
+            }).catch(err=>{
+                console.log("not able to send get request ")
+            })
+        }
+        function display(obj){
+            
+            const editbtn=document.createElement('button');
+            editbtn.textContent="Edit"
+            const li=document.createElement('li');
+            li.innerHTML=`<p>- player name=${obj.name}</P>- <p>DATE OF BIRTH=${obj.age}</>-<p><img src="${obj.url}" alt="photo" wight="200px"></P> 
+            <p>-Players bithplace${obj.birthplace}</p>< players Matches-${obj.matches}-</p>
+            <p>players score${obj.score}</p>- <p> life time fifties${obj.fifties}</p>-<p>players centuries=${obj.centuries}</p>-<p>players wicket=${obj.wicket}</p>-<p>players age=${obj.average}</p>`;
+            
+            li.appendChild(editbtn);
+            show.appendChild(li)
+           
+            editbtn.addEventListener('click',()=>{
+                Edit(obj)
+            })   
+        }
+        
+    </script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <form>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+        <lable for="password">PASSWORD:</lable>
+        <input type="password" id="password" name="password" required>
+        <button type="submit"> Login</button>
+        <a href="signup.html">sigup here</a>
+    </form>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        document.querySelector('form').onsubmit=function(event){
+            event.preventDefault();
+            let myObj={
+                email:event.target.email.value,
+                password:event.target.password.value
+            }
+            axios.post('http://localhost:8000/login',myObj).then((res)=>{
+                console.log(res.data)
+                alert('login succesful')
+                localStorage.setItem('token',res.data.token)
+                window.location.href='expense.html'
+                
+
+            }).catch(err=>{
+                console.log('hii')
+                console.log(err.response.data)
+                const code=err.response.data.code
+                console.log(code)
+                if(code=='2'){alert('password does not match')
+
+                }else if(err.response.data.code=='3'){
+                    alert('user does not exit please sigup ');
+                    window.location.href="signup.html"
+                };
+            })
+        }
+    </script>
+
+</body>
+</html>

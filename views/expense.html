@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <form>
+        <label for="amount">Amount:</label>
+        <input type="number" id="amount" name="amount" required>
+        <lable for="description">Description:</lable>
+        <input type="text" id="description" name="description" required>
+        <lable for="category">category</lable>
+        <input type="text" id="category" name="category">
+        <button type="submit"> Add</button>
+        
+    </form>
+    <div id="premium"> 
+        <button id="razorpay">Buy premium</button>
+    </div>
+    <ul id="expenselist"></ul>
+
+    <h1 id="htag"></h1>
+    <ul id="leaderbordList"></ul>
+    <div >
+        <h1 id="htag2"></h1>
+        <ul id="downloadedFiles"></ul>
+    </div>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        checkIsPremium()
+
+        
+
+        const showDownloadedList=document.getElementById('downloadedFiles');
+        const h=document.getElementById('h')
+        async function checkIsPremium(){    
+            console.log('h')
+            const token=localStorage.getItem('token');
+            
+            axios.get('http://localhost:8000/checkPremium',{headers:{'Authorization':token}}).then((res)=>{
+                const showPremiumUser=document.getElementById('premium');
+                if(res.data.premium){
+                    getDownloadedFile()
+                    showPremiumUser.innerHTML=""
+                    const li=document.createElement('li');
+                    const downloadbtn=document.createElement('button');
+                    downloadbtn.innerHTML='DOWNLOAD';
+                    downloadbtn.id="download"
+                    li.innerHTML="you are a premium user";
+                    showPremiumUser.appendChild(li)
+                    const showLeader=document.createElement('button');
+                    showLeader.innerHTML="SHOW LEADERBORD";
+                    showLeader.id="leaderbord";
+                    //console.log(showLeader)
+                    showPremiumUser.appendChild(downloadbtn)
+                    showPremiumUser.appendChild(showLeader)
+                    showLeader.addEventListener('click',()=>{
+                        axios.get('http://localhost:8000/leaderbord').then((res)=>{
+                            console.log(res)
+                            const showList=document.getElementById('leaderbordList');
+                            const h=document.getElementById('htag');
+                            h.textContent="LEADER BORD"
+                            showList.innerHTML=""
+                            for(let i=0;i<res.data.length;i++){
+                                showingInHtml(res.data[i])
+                            }
+
+                            function showingInHtml(obj){
+                                const li=document.createElement('li');
+                                li.innerHTML=`Name = ${obj.name}--- Total Expense=${obj.totalexpense}`;
+                                showList.appendChild(li)
+                            }
+
+                        }).catch(err=>console.log(err))
+                    })
+                    document.getElementById('download').addEventListener('click',async()=>{
+                        console.log('jii')
+                        const token=localStorage.getItem('token');
+                        axios.get('http://localhost:8000/download',{headers:{'Authorization':token}}).then((res)=>{
+                            console.log(res.data)
+                            if(res.status===200){
+                                const fileUrl=res.data;
+                                console.log(fileUrl)
+                                const a=document.createElement('a');
+                                a.href=fileUrl;
+                                a.download='expense.txt'
+                                a.click()
+                                a.remove()
+                            }
+                        }).catch(err=>console.log(err))
+                    })
+                }
+                
+            }).catch(err=>console.log(err))
+        }
+
+        function getDownloadedFile(){
+            const token=localStorage.getItem('token');
+            axios.get('http://localhost:8000/downloadedFile',{headers:{'Authorization':token}}).then(res=>{
+                const htag=document.getElementById('htag2');
+                if(res.data){
+                    htag.textContent='The files you have downloaded'
+                    for(let i=0;i<res.data.length;i++){
+                        displayDownloadedFiles(res.data[i])
+
+                    }
+                }
+
+                
+            })
+        }
+        function displayDownloadedFiles(obj){
+            const li=document.createElement('li');
+            const downbtn=document.createElement('button');
+            downbtn.innerHTML="Download This file"
+            li.innerHTML=` ${obj.url}`;
+            li.appendChild(downbtn)
+            showDownloadedList.appendChild(li)
+
+            downbtn.addEventListener('click',()=>{
+                
+                axios.delete(`http://localhost:8000/signleFile/${obj.id}`).then((res)=>{
+                    if(res.status===200){
+                        const fileUrl=res.data[0].url;
+                        //console.log(res.data[0].url)
+                        const a=document.createElement('a');
+                        a.href=fileUrl;
+                        a.download='expense.txt'
+                        a.click()
+                    }
+                    
+                }).catch(err=>console.log(err))
+                
+            })
+        }
+        
+        document.getElementById('razorpay').onclick=async function(event){
+            const token=localStorage.getItem('token')
+            const response=await axios.get('http://localhost:8000/buy',{headers:{"Authorization":token}}) 
+            console.log(response);
+            var options={
+                "key":response.data.key_id,
+                "order_id":response.data.o.id,
+
+                "handler":async function(response) {
+                    await axios.post('http:localhost:8000/updateTransaction',{
+                        order_id:options.order_id,
+                        payment_id:response.razorpay_payment_id,
+                    },{headers:{"Authorization":token}})
+                    alert('you are a premium user')
+                    window.location.href="expense.html"
+
+                }
+            }
+            const rzp1= new Razorpay(options)
+            rzp1.open();
+            event.preventDefault()
+
+            rzp1.on('payment.failed',function(response){
+                console.log(response);
+                alert('somthing went wrong')
+            })
+        }
+
+        fetchDeatils()
+        const list=document.getElementById('expenselist')
+        document.querySelector('form').onsubmit=function(event){
+            event.preventDefault()
+            console.log('hiii')
+            myobj={
+                amount:event.target.amount.value,
+                description:event.target.description.value,
+                category:event.target.category.value
+            }
+            const token=localStorage.getItem('token')
+            axios.post('http://localhost:8000/addExpense',myobj,{headers:{"Authorization":token}}).then(res=>{
+                console.log(res)
+                fetchDeatils()
+                
+                
+            }).catch(err=>console.log(err.response))
+
+
+            
+        }
+        function fetchDeatils(){
+            const token=localStorage.getItem('token')
+            console.log(token)
+            axios.get('http://localhost:8000/get',{headers:{"Authorization":token}}).then((res)=>{
+                console.log(res.data)
+                list.innerHTML=""
+                for(let i=0;i<res.data.length;i++){
+                    display(res.data[i])
+                }
+            }).catch(err=>{
+                console.log(err)
+            })
+            }
+        function display(obj){
+            const li=document.createElement('li');
+            const dlt=document.createElement('button');
+            dlt.innerHTML="DELETE"
+            li.innerHTML=` ${obj.amount}--${obj.category}--${obj.description}`;
+            li.appendChild(dlt)
+            list.appendChild(li)
+
+            dlt.addEventListener('click',()=>{
+                const token=localStorage.getItem('token')
+                axios.delete(`http://localhost:8000/delete/${obj.id}`,{headers:{'Authorization':token}}).then((res)=>{
+                    console.log(res)
+                    fetchDeatils()
+                }).catch(err=>console.log(err))
+                
+            })
+        }
+
+        
+    </script>
+</body>
+</html>
