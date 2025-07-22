@@ -14,6 +14,7 @@
         <button type="submit"> Login</button>
         <a href="signup.html">sigup here</a>
     </form>
+    <script src="config.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
         document.querySelector('form').onsubmit=function(event){
@@ -22,7 +23,7 @@
                 email:event.target.email.value,
                 password:event.target.password.value
             }
-            axios.post('http://localhost:8000/login',myObj).then((res)=>{
+            axios.post(`${baseURL}/login`,myObj).then((res)=>{
                 console.log(res.data)
                 alert('login succesful')
                 localStorage.setItem('token',res.data.token)
@@ -31,12 +32,12 @@
 
             }).catch(err=>{
                 console.log('hii')
-                console.log(err.response.data)
+                
                 const code=err.response.data.code
                 console.log(code)
                 if(code=='2'){alert('password does not match')
 
-                }else if(err.response.data.code=='3'){
+                }else{
                     alert('user does not exit please sigup ');
                     window.location.href="signup.html"
                 };

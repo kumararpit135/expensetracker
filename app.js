@@ -52,6 +52,16 @@ Order.belongsTo(User)
 
 User.hasMany(DownlodeFile);
 DownlodeFile.belongsTo(User)
+// app.get('/signup.html', (req, res) => {
+//   res.sendFile(path.join(__dirname, 'views', 'signup.html'));
+// });
+
+// app.get('/expense.html', (req, res) => {
+//   res.sendFile(path.join(__dirname, 'views', 'expense.html'));
+// });
+// app.get('/login.html', (req, res) => {
+//   res.sendFile(path.join(__dirname, 'views', 'login.html'));
+// });
 
 
 sequelize.sync().then(result=>{
@@ -59,4 +69,9 @@ sequelize.sync().then(result=>{
     app.listen(process.env.PORT);
 }).catch(err=>console.log(err))
 
+// const baseURL = window.location.hostname === 'localhost'
+//   ? 'http://localhost:8000'
+//   : 'http://13.232.173.20:8000';
+
+// axios.post(${baseURL}/signup, myObj)
 

@@ -68,7 +68,7 @@ exports.buy=async(req,res)=>{
             if(err){
                 console.log(err)
             }
-            console.log(o)
+            
             Orders.create({orderid:o.id,status:"PENDING",userId:userId}).then(()=>{
                 res.status(201).json({o,key_id:rzp.key_id})
             }).catch(err=>{

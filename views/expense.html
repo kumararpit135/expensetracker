@@ -27,6 +27,7 @@
         <h1 id="htag2"></h1>
         <ul id="downloadedFiles"></ul>
     </div>
+    <script src="config.js"></script>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
@@ -40,7 +41,7 @@
             console.log('h')
             const token=localStorage.getItem('token');
             
-            axios.get('http://localhost:8000/checkPremium',{headers:{'Authorization':token}}).then((res)=>{
+            axios.get(`${baseURL}/checkPremium`,{headers:{'Authorization':token}}).then((res)=>{
                 const showPremiumUser=document.getElementById('premium');
                 if(res.data.premium){
                     getDownloadedFile()
@@ -58,7 +59,7 @@
                     showPremiumUser.appendChild(downloadbtn)
                     showPremiumUser.appendChild(showLeader)
                     showLeader.addEventListener('click',()=>{
-                        axios.get('http://localhost:8000/leaderbord').then((res)=>{
+                        axios.get(`${baseURL}/leaderbord`).then((res)=>{
                             console.log(res)
                             const showList=document.getElementById('leaderbordList');
                             const h=document.getElementById('htag');
@@ -79,7 +80,7 @@
                     document.getElementById('download').addEventListener('click',async()=>{
                         console.log('jii')
                         const token=localStorage.getItem('token');
-                        axios.get('http://localhost:8000/download',{headers:{'Authorization':token}}).then((res)=>{
+                        axios.get(`${baseURL}/download`,{headers:{'Authorization':token}}).then((res)=>{
                             console.log(res.data)
                             if(res.status===200){
                                 const fileUrl=res.data;
@@ -99,7 +100,7 @@
 
         function getDownloadedFile(){
             const token=localStorage.getItem('token');
-            axios.get('http://localhost:8000/downloadedFile',{headers:{'Authorization':token}}).then(res=>{
+            axios.get(`${baseURL}/downloadedFile`,{headers:{'Authorization':token}}).then(res=>{
                 const htag=document.getElementById('htag2');
                 if(res.data){
                     htag.textContent='The files you have downloaded'
@@ -122,7 +123,7 @@
 
             downbtn.addEventListener('click',()=>{
                 
-                axios.delete(`http://localhost:8000/signleFile/${obj.id}`).then((res)=>{
+                axios.delete(`${baseURL}/signleFile/${obj.id}`).then((res)=>{
                     if(res.status===200){
                         const fileUrl=res.data[0].url;
                         //console.log(res.data[0].url)
@@ -139,14 +140,14 @@
         
         document.getElementById('razorpay').onclick=async function(event){
             const token=localStorage.getItem('token')
-            const response=await axios.get('http://localhost:8000/buy',{headers:{"Authorization":token}}) 
+            const response=await axios.get(`${baseURL}/buy`,{headers:{"Authorization":token}}) 
             console.log(response);
             var options={
                 "key":response.data.key_id,
                 "order_id":response.data.o.id,
 
                 "handler":async function(response) {
-                    await axios.post('http:localhost:8000/updateTransaction',{
+                    await axios.post(`${baseURL}/updateTransaction`,{
                         order_id:options.order_id,
                         payment_id:response.razorpay_payment_id,
                     },{headers:{"Authorization":token}})
@@ -176,7 +177,7 @@
                 category:event.target.category.value
             }
             const token=localStorage.getItem('token')
-            axios.post('http://localhost:8000/addExpense',myobj,{headers:{"Authorization":token}}).then(res=>{
+            axios.post(`${baseURL}/addExpense`,myobj,{headers:{"Authorization":token}}).then(res=>{
                 console.log(res)
                 fetchDeatils()
                 
@@ -189,7 +190,7 @@
         function fetchDeatils(){
             const token=localStorage.getItem('token')
             console.log(token)
-            axios.get('http://localhost:8000/get',{headers:{"Authorization":token}}).then((res)=>{
+            axios.get(`${baseURL}/get`,{headers:{"Authorization":token}}).then((res)=>{
                 console.log(res.data)
                 list.innerHTML=""
                 for(let i=0;i<res.data.length;i++){
@@ -209,7 +210,7 @@
 
             dlt.addEventListener('click',()=>{
                 const token=localStorage.getItem('token')
-                axios.delete(`http://localhost:8000/delete/${obj.id}`,{headers:{'Authorization':token}}).then((res)=>{
+                axios.delete(`${baseURL}/delete/${obj.id}`,{headers:{'Authorization':token}}).then((res)=>{
                     console.log(res)
                     fetchDeatils()
                 }).catch(err=>console.log(err))

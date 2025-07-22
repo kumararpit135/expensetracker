@@ -16,7 +16,7 @@
         <button type="submit">SIGN up</button>
         <a href="login.html">login here</a>
     </form>
-
+    <script src="config.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
         document.querySelector('form').onsubmit=function(event){
@@ -26,7 +26,7 @@
                 email:event.target.email.value,
                 password:event.target.password.value,
             }
-            axios.post('http://localhost:8000/signup',myObj).then((res)=>{
+            axios.post(`${baseURL}/signup`,myObj).then((res)=>{
                 //console.log(res.message)
                 alert('signup succesfull')
                 window.location.href='login.html'
