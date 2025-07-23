@@ -65,7 +65,7 @@ DownlodeFile.belongsTo(User)
 
 
 sequelize.sync().then(result=>{
-    //console.log(result)
+    console.log('hii')
     app.listen(process.env.PORT);
 }).catch(err=>console.log(err))
 
